@@ -1,0 +1,259 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
+
+castellatedMesh on;
+snap            on;
+addLayers       off;
+
+geometry
+{
+    BFS_VG
+    {
+        type triSurfaceMesh;
+        file "BFS_VG.stl";
+    }
+
+
+    Leftbox
+    {
+        type searchableBox;
+        min (0 0.49 0.6);
+        max (1.9 0.5 1);
+    }
+
+    L1
+    {
+        type searchableBox;
+        min (0 0.49 0.6);
+        max (1.9 0.53 1);
+    }
+
+   L2
+    {
+        type searchableBox;
+        min (0 0.53 0.6);
+        max (1.9 0.6 1);
+    }
+
+    L3
+    {
+        type searchableBox;
+        min (0 0.6 0.6);
+        max (1.9 0.7 1);
+    }
+
+    L4
+    {
+        type searchableBox;
+        min (0 0.7 0.6);
+        max (1.9 1 1);
+    }
+
+
+
+    rightbox
+    {
+        type searchableBox;
+        min (2.55 -0.4 0.6);
+        max (7 -0.01 1);
+    }
+
+
+    VGbox
+        {
+            type searchableBox;
+            min (1.68  0.49 0.5);
+            max (1.8   0.53 1.1);
+    	}
+
+
+        sphere
+        {
+            type searchableSphere;
+            centre  (2 0 0.8);
+            radius   0.49;
+        }
+};
+
+castellatedMeshControls
+{
+    features
+    (
+//      { file "CAD.eMesh"; level 1; }
+    );
+
+    refinementSurfaces
+    {
+        BFS_VG
+        {
+            level (0 0);
+        }
+        
+    }
+
+    resolveFeatureAngle 30;
+
+    refinementRegions
+    {
+
+        L1
+        {
+	        mode        inside;
+            levels
+            (
+                (0.04 2) // within first 1.0 m refinement level 4
+            );
+                levelIncrement  (2 2 (2 5 0));
+       
+        }
+
+
+
+        L2
+        {
+	        mode        inside;
+            levels
+            (
+                (0.04 2) // within first 1.0 m refinement level 4
+            );
+                levelIncrement  (2 2 (2 4 0));
+       
+        }
+
+
+        L3
+        {
+	        mode        inside;
+            levels
+            (
+                (0.04 2) // within first 1.0 m refinement level 4
+            );
+                levelIncrement  (2 2 (2 2 0));
+       
+        }
+
+
+        L4
+        {
+	        mode        inside;
+            levels
+            (
+                (0.04 2) // within first 1.0 m refinement level 4
+            );
+                levelIncrement  (2 2 (1 1 0));
+       
+        }
+
+
+        leftbox
+        {
+            mode        distance;
+            levels
+            (
+                (2 2) // within 2.0 m refinement level 3.
+                (3 1) // within 2.0 m refinement level 3.
+            );
+        }
+       
+    
+
+
+        sphere
+        {
+            mode        distance;
+            levels
+            (
+                  (0.51 2) // within 2.0 m refinement level 3.
+                  (1.01 1) // within 2.0 m refinement level 3.
+
+            );
+        }
+
+
+        rightbox
+        {
+            mode        distance;
+            levels
+            (
+                (0.51 2) // within 2.0 m refinement level 3.
+                (1.01 1) // within 2.0 m refinement level 3.
+            );
+        }
+
+
+	    VGbox
+	    {
+	        mode        inside;
+            levels
+            (
+                (0.04 7) // within first 1.0 m refinement level 4
+            );
+    
+	    }
+
+    }
+
+    locationInMesh (4 4 0.65); // Offset from (0 0 0) to avoid
+                                     // coinciding with face or edge
+    nCellsBetweenLevels 1;
+}
+
+snapControls
+{
+//  explicitFeatureSnap    on;
+//  implicitFeatureSnap    off;
+
+nSmoothPatch 3;
+tolerance 2.0;
+nSolveIter 50;
+nRelaxIter 5;
+
+nFeatureSnapIter 50;
+implicitFeatureSnap on;
+explicitFeatureSnap off;
+multiRegionFeatureSnap off;
+}
+
+addLayersControls
+{
+    layers
+    {
+        frontAndBack
+        {
+            nSurfaceLayers 50;
+        }
+    }
+
+    relativeSizes       off;   // off, usually with firstLayerThickness
+    expansionRatio      1.02;
+   // finalLayerThickness 0.02;
+    minThickness        1e-3;
+    firstLayerThickness 0.001;
+
+//  maxThicknessToMedialRatio 0.3;
+}
+
+writeFlags
+(
+//    scalarLevels
+    layerSets
+    layerFields
+);
+
+mergeTolerance 1e-6;
+
+// ************************************************************************* //
